@@ -69,3 +69,8 @@ Thumbs.db
 .idea/
 *.sublime-project
 *.sublime-workspace
+
+# Tmp
+tmp/
+allure-results/
+allure-report/

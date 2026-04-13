@@ -9,6 +9,7 @@ from shared.contracts.models import BaseAIRequest
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 from shared.utils.logger import app_logger
+from shared.utils.artifact_exporter import exporter
 
 router = APIRouter(tags=["Pipeline"])
 
@@ -20,7 +21,6 @@ class PipelineRequest(BaseAIRequest):
 @router.post("/pipeline/run")
 def run_pipeline(req: PipelineRequest):
     app_logger.info("--- Starting E2E QA Pipeline Run ---")
-    masking_service = MaskingService()
     
     # Configuration extraction
     masking_config = req.config.get("piiMasking", {}) if req.config else {}
@@ -28,11 +28,14 @@ def run_pipeline(req: PipelineRequest):
     provider = req.provider
 
     # 1. Masking
+    masking_service = MaskingService()
     masking_result = masking_service.mask(
         req.checklist.get("content", ""),
         mode,
         provider
     )
+    exporter.save_artifact("1_masking_result", masking_result)
+    
     masked_content = masking_result.get("masked_text", "")
     
     # 2. Scenario Generation
@@ -44,6 +47,7 @@ def run_pipeline(req: PipelineRequest):
         provider=provider
     )
     scenarios = scenarios_result.get("scenarios", [])
+    exporter.save_artifact("2_scenarios", scenarios)
     
     # 3. Code Generation
     ai_code_generator = AICodeGenerator()
@@ -54,6 +58,7 @@ def run_pipeline(req: PipelineRequest):
         provider=provider
     )
     generated_code = code_result.get("files", [])
+    exporter.save_artifact("3_generated_code", generated_code)
     
     # 4. File Writing
     file_writer_service = FileWriterService()
@@ -63,12 +68,12 @@ def run_pipeline(req: PipelineRequest):
     review_result = None
     if generated_code:
         review_service = CodeReviewService()
-        # Join all code for review or pick the main file
         combined_code = "\n\n".join([f"File: {f['path']}\n{f['content']}" for f in generated_code])
         review_result = review_service.review_code(
             code=combined_code,
             provider=provider
         )
+        exporter.save_artifact("4_code_review", review_result)
 
     # 6. Optional: Bug Report
     bug_report = None
@@ -81,8 +86,10 @@ def run_pipeline(req: PipelineRequest):
             tests=str(generated_code),
             provider=provider
         )
+        exporter.save_artifact("5_bug_report", bug_report)
 
     app_logger.info("--- E2E QA Pipeline Run Completed Successfully ---")
+    
     return {
         "masking": masking_result,
         "scenarios": scenarios,
