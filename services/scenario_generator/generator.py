@@ -8,8 +8,8 @@ class ScenarioGenerator:
     def __init__(self, provider_name: str):
         self.provider = get_provider(provider_name)
 
-    def generate(self, jira_text: str, variables: dict, locators: dict, ai_config: AIConfig = None) -> dict:
-        prompt = self._build_prompt(jira_text, variables, locators)
+    def generate(self, checklist_text: str, variables: dict, locators: dict, ai_config: AIConfig = None) -> dict:
+        prompt = self._build_prompt(checklist_text, variables, locators)
         if ai_config is None:
             ai_config = AIConfig()
 
@@ -22,16 +22,16 @@ class ScenarioGenerator:
         
         return self._parse_response(response)
 
-    def _build_prompt(self, jira_text: str, variables: dict, locators: dict) -> str:
+    def _build_prompt(self, checklist_text: str, variables: dict, locators: dict) -> str:
         with open("prompts/2_scenario_prompt.txt") as f:
             template = f.read()
 
         variables_str = json.dumps(variables, indent=2)
-        locatros_str = json.dumps(locators, indent=2)
+        locators_str = json.dumps(locators, indent=2)
 
-        return template.replace("{{JIRA}}", jira_text)\
+        return template.replace("{{CHECKLIST}}", checklist_text)\
                        .replace("{{VARIABLES}}", variables_str)\
-                       .replace("{{LOCATORS}}", locatros_str)\
+                       .replace("{{LOCATORS}}", locators_str)\
 
     def _parse_response(self, response: str):
         try:

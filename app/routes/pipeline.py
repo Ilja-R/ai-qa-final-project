@@ -8,7 +8,7 @@ from app.services.generator_service import GeneratorService
 router = APIRouter()
 
 class PipelineRequest(BaseModel):
-    jira: dict
+    checklist: dict
     variables: dict
     page_locators: dict
     config: dict
@@ -19,7 +19,7 @@ def run_pipeline(req: PipelineRequest):
     masking_service = MaskingService()
     
     request_data = {
-        "jira": req.jira,
+        "checklist": req.checklist,
         "variables": req.variables,
         "page_locators": req.page_locators,
         "config": req.config
@@ -30,16 +30,16 @@ def run_pipeline(req: PipelineRequest):
     provider = request_data["config"].get("aiProvider", "mistral")
 
     masking_result = masking_service.mask(
-        req.jira.get("content", ""),
+        req.checklist.get("content", ""),
         mode,
         provider
     )
     
-    request_data["jira"]["masked_content"] = masking_result.get("masked_text", "")
+    request_data["checklist"]["masked_content"] = masking_result.get("masked_text", "")
     
     generator_service = GeneratorService()
     scenarios = generator_service.generate_scenarios(
-        jira_text=request_data["jira"]["masked_content"],
+        checklist_text=request_data["checklist"]["masked_content"],
         variables=request_data["variables"],
         locators=request_data["page_locators"],
         provider=provider

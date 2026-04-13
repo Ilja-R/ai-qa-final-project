@@ -1,6 +1,6 @@
 curl -X POST http://localhost:3000/pipeline/run -H "Content-Type: application/json" -d '{
-  "jira": {
-    "content": "User john_doe logged in with password 123456 and email john@gmail.com"
+  "checklist": {
+    "content": """User john_doe logged in with password 123456 and email john@gmail.com"""
   },
   "variables": {
     "correct_username": "standard_user",
@@ -19,3 +19,13 @@ curl -X POST http://localhost:3000/pipeline/run -H "Content-Type: application/js
   }
 }'
 
+Site: https://www.saucedemo.com/
+Scope: Login only
+Scenario Author: John Doe, (+333)555-5555, tester@test.com
+
+Checklist:
+1) Valid login -> Products page is opened
+2) Invalid password -> error message is shown
+3) Invalid username -> error message is shown
+4) Empty fields -> error message is shown
+5) Locked user -> locked user error is shown

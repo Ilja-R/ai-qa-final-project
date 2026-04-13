@@ -1,9 +1,9 @@
 STRICT RULES:
-- Use ONLY the provided Jira content, variables and locators
+- Use ONLY the provided checklist content, variables and locators
 - DO NOT invent features, behaviors, or assumptions
 - DO NOT add functionality not explicitly described
 - Cover both positive and negative scenarios when applicable
-- Include edge cases if they are implied by the Jira content
+- Include edge cases if they are implied by the checklist content
 - Base test only on provided variables and given locators
 - Do not speculate on the behavior, if expected behavior would be an error message, do not provide a specific expected message, but just check that error message box appears based on locator as expected
 
@@ -30,8 +30,8 @@ OUTPUT FORMAT (STRICT JSON ONLY):
   ]
 }
 
-JIRA CONTENT:
-{{JIRA}}
+CHECKLIST CONTENT:
+{{CHECKLIST}}
 
 TEST VARIABLES:
 {{VARIABLES}}

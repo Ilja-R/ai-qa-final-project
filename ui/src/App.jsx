@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 export default function App() {
-  const [jira, setJira] = useState('')
+  const [checklist, setchecklist] = useState('')
   const [variables, setVariables] = useState([{ key: '', value: '' }])
   const [pageLocators, setPageLocators] = useState([{ key: '', value: '' }])
   const [aiProvider, setAiProvider] = useState('mistral')
@@ -52,7 +52,7 @@ export default function App() {
     })
 
     const payload = {
-      jira: { content: jira },
+      checklist: { content: checklist },
       variables: vars,
       page_locators: locators,
       config: {
@@ -77,11 +77,11 @@ export default function App() {
       <h1>QA Automation Pipeline</h1>
 
       <div className="card">
-        <h3>Jira Input</h3>
+        <h3>Checklist Input</h3>
         <textarea
           rows={5}
-          value={jira}
-          onChange={e => setJira(e.target.value)}
+          value={checklist}
+          onChange={e => setchecklist(e.target.value)}
         />
       </div>
 
