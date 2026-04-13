@@ -1,0 +1,6 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","613","Valid login navigates to Products page","Generated Tests","2026-04-13","passed","2026-04-13","","generated.spec.ts","",""
+"","489","Locked user shows locked user error","Generated Tests","2026-04-13","passed","2026-04-13","","generated.spec.ts","",""
+"","497","Invalid password shows error message","Generated Tests","2026-04-13","passed","2026-04-13","","generated.spec.ts","",""
+"","418","Empty fields show error message","Generated Tests","2026-04-13","passed","2026-04-13","","generated.spec.ts","",""
+"","437","Invalid username shows error message","Generated Tests","2026-04-13","passed","2026-04-13","","generated.spec.ts","",""
