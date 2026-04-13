@@ -7,7 +7,7 @@ STRICT RULES:
 - Use provided locators (IDs, classes)
 - Use provided variables (do NOT hardcode values)
 - Each scenario must be converted into a separate test()
-- Open page specified in tests before filling forms
+- Open page specified in tests before filling forms, use the full url, not "/"
 - Use page.fill() for inputs
 - Use page.click() for buttons
 - Use expect() for assertions

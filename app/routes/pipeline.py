@@ -42,6 +42,7 @@ def run_pipeline(req: PipelineRequest):
         jira_text=request_data["jira"]["masked_content"],
         variables=request_data["variables"],
         locators=request_data["page_locators"],
+        provider=provider
     )
     request_data["scenarios"] = scenarios.get("scenarios", [])
     
