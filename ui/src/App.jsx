@@ -131,7 +131,6 @@ export default function App() {
         <select value={aiProvider} onChange={e => setAiProvider(e.target.value)}>
           <option value="mistral">Mistral</option>
           <option value="gemini">Gemini</option>
-          <option value="openai">OpenAI</option>
         </select>
 
         <label>PII Masking</label>

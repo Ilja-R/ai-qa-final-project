@@ -1,77 +1,90 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
 from app.services.ai_code_generator import AICodeGenerator
-from app.services.bug_report_service import BugReportService
-from app.services.code_review_service import CodeReviewService
 from app.services.file_writer_service import FileWriterService
 from app.services.masking_service import MaskingService
-from app.services.generator_service import GeneratorService
+from app.services.scenario_generator_service import ScenarioGeneratorService
+from app.services.code_review_service import CodeReviewService
+from app.services.bug_report_service import BugReportService
+from shared.contracts.models import BaseAIRequest
+from pydantic import BaseModel
+from typing import Dict, Any, Optional
 
-router = APIRouter()
+router = APIRouter(tags=["Pipeline"])
 
-class PipelineRequest(BaseModel):
-    checklist: dict
-    variables: dict
-    page_locators: dict
-    config: dict
-
+class PipelineRequest(BaseAIRequest):
+    checklist: Dict[str, Any]
+    variables: Dict[str, Any]
+    page_locators: Dict[str, Any]
 
 @router.post("/pipeline/run")
 def run_pipeline(req: PipelineRequest):
     masking_service = MaskingService()
     
-    request_data = {
-        "checklist": req.checklist,
-        "variables": req.variables,
-        "page_locators": req.page_locators,
-        "config": req.config
-    }
-
-    masking_config = request_data["config"].get("piiMasking", {})
+    # Configuration extraction
+    masking_config = req.config.get("piiMasking", {}) if req.config else {}
     mode = masking_config.get("mode", "simple")
-    provider = request_data["config"].get("aiProvider", "mistral")
+    provider = req.provider
 
+    # 1. Masking
     masking_result = masking_service.mask(
         req.checklist.get("content", ""),
         mode,
         provider
     )
     
-    request_data["checklist"]["masked_content"] = masking_result.get("masked_text", "")
+    masked_content = masking_result.get("masked_text", "")
     
-    generator_service = GeneratorService()
-    scenarios = generator_service.generate_scenarios(
-        checklist_text=request_data["checklist"]["masked_content"],
-        variables=request_data["variables"],
-        locators=request_data["page_locators"],
+    # 2. Scenario Generation
+    generator_service = ScenarioGeneratorService()
+    scenarios_result = generator_service.generate_scenarios(
+        checklist_text=masked_content,
+        variables=req.variables,
+        locators=req.page_locators,
         provider=provider
     )
-    request_data["scenarios"] = scenarios.get("scenarios", [])
+    scenarios = scenarios_result.get("scenarios", [])
     
+    # 3. Code Generation
     ai_code_generator = AICodeGenerator()
-    code = ai_code_generator.generate_code(
-        scenarios=request_data["scenarios"],
-        variables=request_data["variables"],
-        locators=request_data["page_locators"],
+    code_result = ai_code_generator.generate_code(
+        scenarios=scenarios,
+        variables=req.variables,
+        locators=req.page_locators,
         provider=provider
     )
-    request_data["generated_code"] = code
+    generated_code = code_result.get("files", [])
     
+    # 4. File Writing
     file_writer_service = FileWriterService()
-    file_writer_service.write_to_file(code.get("files", []))
-    
-    review_service = CodeReviewService()
-    review_result = review_service.review_code(str(code.get("files", [])), provider=provider)
-    request_data["code_review"] = review_result
-    
-    bug_report_service = BugReportService()
-    bug_report = bug_report_service.generate_report(
-        checklist=request_data["checklist"]["masked_content"],
-        scenarios="\n".join(str(request_data["scenarios"])),
-        review=str(review_result),
-        tests=str(code.get("files", [])),
-        provider=provider
-    )
-    request_data["bug_report"] = bug_report
-    
-    return request_data
+    file_writer_service.write_to_file(generated_code)
+
+    # 5. Optional: Code Review (If there is code)
+    review_result = None
+    if generated_code:
+        review_service = CodeReviewService()
+        # Join all code for review or pick the main file
+        combined_code = "\n\n".join([f"File: {f['path']}\n{f['content']}" for f in generated_code])
+        review_result = review_service.review_code(
+            code=combined_code,
+            provider=provider
+        )
+
+    # 6. Optional: Bug Report
+    bug_report = None
+    if review_result:
+        bug_report_service = BugReportService()
+        bug_report = bug_report_service.generate_report(
+            checklist=masked_content,
+            scenarios=str(scenarios),
+            review=str(review_result),
+            tests=str(generated_code),
+            provider=provider
+        )
+
+    return {
+        "masking": masking_result,
+        "scenarios": scenarios,
+        "generated_code": generated_code,
+        "code_review": review_result,
+        "bug_report": bug_report
+    }

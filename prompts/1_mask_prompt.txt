@@ -12,6 +12,7 @@ PII includes (but is not limited to):
 - Identification numbers (SSN, ID, passport, etc.)
 - IP addresses
 - URLs containing sensitive data
+- NB! Do not mask url in the "Site: [URL]" section 
 
 Masking rules:
 - Replace detected entities with standardized tokens:
