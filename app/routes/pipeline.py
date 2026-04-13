@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from app.services.ai_code_generator import AICodeGenerator
+from app.services.bug_report_service import BugReportService
+from app.services.code_review_service import CodeReviewService
 from app.services.file_writer_service import FileWriterService
 from app.services.masking_service import MaskingService
 from app.services.generator_service import GeneratorService
@@ -57,5 +59,19 @@ def run_pipeline(req: PipelineRequest):
     
     file_writer_service = FileWriterService()
     file_writer_service.write_to_file(code.get("files", []))
-
+    
+    review_service = CodeReviewService()
+    review_result = review_service.review_code(str(code.get("files", [])), provider=provider)
+    request_data["code_review"] = review_result
+    
+    bug_report_service = BugReportService()
+    bug_report = bug_report_service.generate_report(
+        checklist=request_data["checklist"]["masked_content"],
+        scenarios="\n".join(str(request_data["scenarios"])),
+        review=str(review_result),
+        tests=str(code.get("files", [])),
+        provider=provider
+    )
+    request_data["bug_report"] = bug_report
+    
     return request_data
