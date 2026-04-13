@@ -8,6 +8,7 @@ from app.services.bug_report_service import BugReportService
 from shared.contracts.models import BaseAIRequest
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
+from shared.utils.logger import app_logger
 
 router = APIRouter(tags=["Pipeline"])
 
@@ -18,6 +19,7 @@ class PipelineRequest(BaseAIRequest):
 
 @router.post("/pipeline/run")
 def run_pipeline(req: PipelineRequest):
+    app_logger.info("--- Starting E2E QA Pipeline Run ---")
     masking_service = MaskingService()
     
     # Configuration extraction
@@ -31,12 +33,11 @@ def run_pipeline(req: PipelineRequest):
         mode,
         provider
     )
-    
     masked_content = masking_result.get("masked_text", "")
     
     # 2. Scenario Generation
     generator_service = ScenarioGeneratorService()
-    scenarios_result = generator_service.generate_scenarios(
+    scenarios_result = generator_service.generate_test_scenarios(
         checklist_text=masked_content,
         variables=req.variables,
         locators=req.page_locators,
@@ -81,6 +82,7 @@ def run_pipeline(req: PipelineRequest):
             provider=provider
         )
 
+    app_logger.info("--- E2E QA Pipeline Run Completed Successfully ---")
     return {
         "masking": masking_result,
         "scenarios": scenarios,

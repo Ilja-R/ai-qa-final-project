@@ -27,8 +27,6 @@ class MistralProvider(BaseAIProvider):
             request_data["max_tokens"] = config.max_tokens
         if config.top_p is not None:
             request_data["top_p"] = config.top_p
-            
-        print(f"Sending request to Mistral with data: {request_data}")  # Debug log
         
         response = requests.post(
             self.url,

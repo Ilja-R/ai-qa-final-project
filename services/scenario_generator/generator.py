@@ -17,8 +17,6 @@ class ScenarioGenerator:
 
         if response.startswith("```json"):
             response = response.replace("```json", "").replace("```", "").strip()
-            
-        print(f"AI scenario response: {response}")  # Debug log
         
         return self._parse_response(response)
 

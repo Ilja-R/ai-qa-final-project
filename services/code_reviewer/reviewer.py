@@ -17,8 +17,6 @@ class CodeReviewer:
         if response.startswith("```json"):
             response = response.replace("```json", "").replace("```", "").strip()
 
-        print(f"AI code review response: {response}")  # Debug log
-
         return self._parse_response(response)
 
     def _build_prompt(self, code: str) -> str:

@@ -29,3 +29,6 @@ Checklist:
 3) Invalid username -> error message is shown
 4) Empty fields -> error message is shown
 5) Locked user -> locked user error is shown
+
+
+{"checklist":{"content":"Site: https://www.saucedemo.com/\nScope: Login only\nScenario Author: John Doe, (+333)555-5555, tester@test.com\n\nChecklist:\n1) Valid login -> Products page is opened\n2) Invalid password -> error message is shown\n3) Invalid username -> error message is shown\n4) Empty fields -> error message is shown\n5) Locked user -> locked user error is shown"},"variables":{"correct_username":"standard_user","password":"secret_sauce","locked_out_username":"locked_out_user"},"page_locators":{"username_field":"#user-name","password_field":"#password","login_button":"#login-button","error_meassage":".error-message-container"},"config":{"aiProvider":"mistral","piiMasking":{"mode":"ai"}}}

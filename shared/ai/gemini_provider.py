@@ -38,8 +38,6 @@ class GeminiProvider(BaseAIProvider):
             }],
             "generationConfig": generation_config
         }
-            
-        print(f"Sending request to Gemini with model: {model}")  # Debug log
         
         response = requests.post(
             url,

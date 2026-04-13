@@ -17,8 +17,6 @@ class BugReporter:
         if response.startswith("```json"):
             response = response.replace("```json", "").replace("```", "").strip()
 
-        print(f"AI bug report response: {response}")  # Debug log
-
         return self._parse_response(response)
 
     def _build_prompt(self, checklist: str, scenarios: str, review: str, tests: str) -> str:
