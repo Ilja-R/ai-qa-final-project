@@ -1,6 +1,6 @@
 import json
 from shared.ai.provider_factory import get_provider
-from shared.ai.models import AIConfig
+from shared.ai.ai_config import AIConfig
 
 
 class PlaywrightAIGenerator:

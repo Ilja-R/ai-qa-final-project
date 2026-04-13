@@ -1,7 +1,7 @@
 import requests
 import os
 from shared.ai.base_provider import BaseAIProvider
-from shared.ai.models import AIConfig
+from shared.ai.ai_config import AIConfig
 
 class GeminiProvider(BaseAIProvider):
     def __init__(self):
