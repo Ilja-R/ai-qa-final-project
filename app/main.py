@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import pipeline, masking, scenarios, code_gen, review, bug_report
+from app.api import pipeline, masking, scenarios, code_gen, review, bug_report, config
 
 app = FastAPI(title="AI-Powered QA Automation Pipeline")
 
@@ -11,6 +11,7 @@ app.include_router(code_gen.router)
 app.include_router(review.router)
 app.include_router(bug_report.router)
 app.include_router(pipeline.router)
+app.include_router(config.router)
 
 app.add_middleware(
     CORSMiddleware,

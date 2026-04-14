@@ -33,7 +33,7 @@ class CodeReviewer:
                 "summary": "Error parsing AI response",
                 "critical_issues": [],
                 "suggestions": [],
-                "positive_observations": [],
+                "positive_observations": ["Error occurred during parsing"],
                 "overall_score": 0,
                 "error": str(e),
                 "raw": response

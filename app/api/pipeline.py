@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+import os
 from app.services.ai_code_generator import AICodeGenerator
 from app.services.file_writer_service import FileWriterService
 from app.services.masking_service import MaskingService
@@ -21,6 +22,7 @@ class PipelineRequest(BaseAIRequest):
 @router.post("/pipeline/run")
 def run_pipeline(req: PipelineRequest):
     app_logger.info("--- Starting E2E QA Pipeline Run ---")
+    exporter.start_run()
     
     # Configuration extraction
     masking_config = req.config.get("piiMasking", {}) if req.config else {}
@@ -90,7 +92,12 @@ def run_pipeline(req: PipelineRequest):
 
     app_logger.info("--- E2E QA Pipeline Run Completed Successfully ---")
     
+    # Get the current run directory name (run_...)
+    run_dir = exporter.current_run_dir
+    run_id = os.path.basename(run_dir) if run_dir else None
+
     return {
+        "run_id": run_id,
         "masking": masking_result,
         "scenarios": scenarios,
         "generated_code": generated_code,

@@ -20,7 +20,7 @@ class GeminiProvider(BaseAIProvider):
         if config is None:
             config = AIConfig()
         
-        model = config.model if config.model else "gemini-1.5-flash"
+        model = config.model if config.model else "gemini-3-flash-preview"
         url = f"{self.base_url}/{model}:generateContent?key={self.api_key}"
         
         generation_config = {}
@@ -49,7 +49,7 @@ class GeminiProvider(BaseAIProvider):
                     "Content-Type": "application/json"
                 },
                 json=request_data,
-                timeout=30
+                timeout=240
             )
 
             if response.status_code != 200:

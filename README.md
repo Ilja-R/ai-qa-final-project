@@ -2,6 +2,9 @@
 
 This project is a comprehensive AI-driven system designed to automate the generation of QA artifacts, including test scenarios, Playwright automation code, and detailed bug reports, starting from simple requirement checklists.
 
+NB! The goal of this project is purely academic - to study AI pipeline creation and managing
+process.
+
 ## Features
 
 - **PII Masking**: Automatically detects and masks sensitive information in your requirements using simple regex or AI-driven logic.
@@ -97,6 +100,8 @@ To run the generated Playwright tests:
 
 ### Checklist Input
 
+Input next data on the running UI page, hit "Run Full E2E Pipeline" and check the result.
+
 ```
 Site: https://www.saucedemo.com/
 Scope: Login only
@@ -114,7 +119,7 @@ Checklist:
 ```
 correct_username : standard_user
 password : secret_sauce
-locked_out_username: locked_out_user
+locked_out_username : locked_out_user
 ```
 
 ### Page Locators

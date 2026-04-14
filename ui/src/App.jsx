@@ -1,16 +1,36 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import DynamicList from './components/DynamicList'
 import ConfigPanel from './components/ConfigPanel'
+import PipelineResults from './components/PipelineResults'
 
 export default function App() {
   const [checklist, setChecklist] = useState('')
   const [variables, setVariables] = useState([{ key: '', value: '' }])
   const [pageLocators, setPageLocators] = useState([{ key: '', value: '' }])
-  const [aiProvider, setAiProvider] = useState('mistral')
+  const [aiProvider, setAiProvider] = useState('')
+  const [availableProviders, setAvailableProviders] = useState([])
   const [masking, setMasking] = useState('simple')
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/config/models")
+        if (res.ok) {
+          const data = await res.json()
+          setAvailableProviders(data.providers || [])
+          if (data.providers && data.providers.length > 0) {
+            setAiProvider(data.providers[0].id)
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch config:", err)
+      }
+    }
+    fetchConfig()
+  }, [])
 
   const handleUpdateItem = (list, setList, index, field, value) => {
     const updated = [...list]
@@ -113,10 +133,11 @@ export default function App() {
           setAiProvider={setAiProvider}
           masking={masking}
           setMasking={setMasking}
+          availableProviders={availableProviders}
         />
 
         <div className="actions">
-          <button className="primary big" onClick={runPipeline} disabled={loading || !checklist}>
+          <button className="primary big" onClick={runPipeline} disabled={loading || !checklist || availableProviders.length === 0}>
             {loading ? "Processing Pipeline..." : "🚀 Run Full E2E Pipeline"}
           </button>
         </div>
@@ -130,10 +151,7 @@ export default function App() {
 
         {result && (
           <div className="card result-container">
-            <h3>Pipeline Results</h3>
-            <div className="result-tabs">
-              <pre>{JSON.stringify(result, null, 2)}</pre>
-            </div>
+            <PipelineResults result={result} />
           </div>
         )}
       </main>
