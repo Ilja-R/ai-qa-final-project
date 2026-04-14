@@ -1,4 +1,4 @@
-from services.code_reviewer.reviewer import CodeReviewer
+from app.core.code_reviewer.reviewer import CodeReviewer
 from shared.ai.ai_config import AIConfig
 from shared.utils.logger import app_logger
 

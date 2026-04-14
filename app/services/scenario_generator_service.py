@@ -1,4 +1,4 @@
-from services.scenario_generator.generator import ScenarioGenerator
+from app.core.scenario_generator.generator import ScenarioGenerator
 from shared.utils.logger import app_logger
 
 class ScenarioGeneratorService:

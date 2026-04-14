@@ -1,5 +1,5 @@
-from services.pii_masking.maskers.ai_masker import AIMasker
-from services.pii_masking.maskers.simple_masker import SimpleMasker
+from app.core.pii_masking.maskers.ai_masker import AIMasker
+from app.core.pii_masking.maskers.simple_masker import SimpleMasker
 from shared.utils.logger import app_logger
 
 class MaskingService:

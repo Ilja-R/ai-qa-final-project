@@ -1,17 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import pipeline, masking, scenarios, code_gen, review, bug_report
+from app.api import pipeline, masking, scenarios, code_gen, review, bug_report
 
-app = FastAPI(title="QA Pipeline System")
+app = FastAPI(title="AI-Powered QA Automation Pipeline")
 
-# Include new granular routers
+# Include routers from api package
 app.include_router(masking.router)
 app.include_router(scenarios.router)
 app.include_router(code_gen.router)
 app.include_router(review.router)
 app.include_router(bug_report.router)
-
-# Include original pipeline router
 app.include_router(pipeline.router)
 
 app.add_middleware(
@@ -21,3 +19,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+def read_root():
+    return {"message": "AI QA Pipeline API is running"}

@@ -1,4 +1,4 @@
-from services.test_generator.file_writer import TestFileWriter
+from app.core.test_generator.file_writer import TestFileWriter
 from shared.utils.logger import app_logger
 
 class FileWriterService:

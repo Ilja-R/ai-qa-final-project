@@ -1,45 +1,35 @@
 import React, { useState } from 'react'
+import DynamicList from './components/DynamicList'
+import ConfigPanel from './components/ConfigPanel'
 
 export default function App() {
-  const [checklist, setchecklist] = useState('')
+  const [checklist, setChecklist] = useState('')
   const [variables, setVariables] = useState([{ key: '', value: '' }])
   const [pageLocators, setPageLocators] = useState([{ key: '', value: '' }])
   const [aiProvider, setAiProvider] = useState('mistral')
   const [masking, setMasking] = useState('simple')
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  const addVariable = () => {
-    setVariables([...variables, { key: '', value: '' }])
-  }
-
-  const removeVariable = (index) => {
-    setVariables(variables.filter((_, i) => i !== index))
-  }
-
-  const addPageLocator = () => {
-    setPageLocators([...pageLocators, { key: '', value: '' }])
-  }
-
-  const removePageLocator = (index) => {
-    setPageLocators(pageLocators.filter((_, i) => i !== index))
-  }
-
-  const updateVariable = (index, field, value) => {
-    const updated = [...variables]
+  const handleUpdateItem = (list, setList, index, field, value) => {
+    const updated = [...list]
     updated[index][field] = value
-    setVariables(updated)
+    setList(updated)
   }
 
-  const updatePageLocator = (index, field, value) => {
-    const updated = [...pageLocators]
-    updated[index][field] = value
-    setPageLocators(updated)
+  const handleAddItem = (list, setList) => {
+    setList([...list, { key: '', value: '' }])
+  }
+
+  const handleRemoveItem = (list, setList, index) => {
+    setList(list.filter((_, i) => i !== index))
   }
 
   const runPipeline = async () => {
     setLoading(true)
     setResult(null)
+    setError(null)
 
     const vars = {}
     variables.forEach(v => {
@@ -55,101 +45,98 @@ export default function App() {
       checklist: { content: checklist },
       variables: vars,
       page_locators: locators,
+      provider: aiProvider,
       config: {
-        aiProvider,
         piiMasking: { mode: masking }
       }
     }
 
-    const res = await fetch("http://localhost:3000/pipeline/run", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
+    try {
+      const res = await fetch("http://localhost:3000/pipeline/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
 
-    const data = await res.json()
-    setResult(data)
-    setLoading(false)
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status} ${res.statusText}`)
+      }
+
+      const data = await res.json()
+      setResult(data)
+    } catch (err) {
+      console.error(err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="container">
-      <h1>QA Automation Pipeline</h1>
+      <header>
+        <h1>AI QA Automation Pipeline</h1>
+        <p>Generate test scenarios, code, and bug reports from your checklists.</p>
+      </header>
 
-      <div className="card">
-        <h3>Checklist Input</h3>
-        <textarea
-          rows={5}
-          value={checklist}
-          onChange={e => setchecklist(e.target.value)}
-        />
-      </div>
-
-      <div className="card">
-        <h3>Test Variables</h3>
-        {variables.map((v, i) => (
-          <div className="row" key={i}>
-            <input
-              placeholder="Key"
-              value={v.key}
-              onChange={e => updateVariable(i, 'key', e.target.value)}
-            />
-            <input
-              placeholder="Value"
-              value={v.value}
-              onChange={e => updateVariable(i, 'value', e.target.value)}
-            />
-            <button className="danger" onClick={() => removeVariable(i)}>X</button>
-          </div>
-        ))}
-        <button onClick={addVariable}>+ Add Variable</button>
-      </div>
-
-      <div className="card">
-        <h3>Page Locators</h3>
-        {pageLocators.map((p, i) => (
-          <div className="row" key={i}>
-            <input
-              placeholder="Key"
-              value={p.key}
-              onChange={e => updatePageLocator(i, 'key', e.target.value)}
-            />
-            <input
-              placeholder="Value"
-              value={p.value}
-              onChange={e => updatePageLocator(i, 'value', e.target.value)}
-            />
-            <button className="danger" onClick={() => removePageLocator(i)}>X</button>
-          </div>
-        ))}
-        <button onClick={addPageLocator}>+ Add Page Locator</button>
-      </div>
-
-      <div className="card">
-        <h3>Configuration</h3>
-        <label>AI Provider</label>
-        <select value={aiProvider} onChange={e => setAiProvider(e.target.value)}>
-          <option value="mistral">Mistral</option>
-          <option value="gemini">Gemini</option>
-        </select>
-
-        <label>PII Masking</label>
-        <select value={masking} onChange={e => setMasking(e.target.value)}>
-          <option value="simple">Simple</option>
-          <option value="ai">AI</option>
-        </select>
-      </div>
-
-      <button className="primary" onClick={runPipeline}>
-        {loading ? "Running..." : "Run Pipeline"}
-      </button>
-
-      {result && (
+      <main>
         <div className="card">
-          <h3>Results</h3>
-          <pre>{JSON.stringify(result, null, 2)}</pre>
+          <h3>Checklist Input</h3>
+          <textarea
+            placeholder="Enter your testing requirements/checklist here..."
+            rows={8}
+            value={checklist}
+            onChange={e => setChecklist(e.target.value)}
+          />
         </div>
-      )}
+
+        <div className="grid">
+          <DynamicList
+            title="Variables"
+            items={variables}
+            onChange={(idx, f, v) => handleUpdateItem(variables, setVariables, idx, f, v)}
+            onAdd={() => handleAddItem(variables, setVariables)}
+            onRemove={(idx) => handleRemoveItem(variables, setVariables, idx)}
+          />
+
+          <DynamicList
+            title="Page Locators"
+            items={pageLocators}
+            onChange={(idx, f, v) => handleUpdateItem(pageLocators, setPageLocators, idx, f, v)}
+            onAdd={() => handleAddItem(pageLocators, setPageLocators)}
+            onRemove={(idx) => handleRemoveItem(pageLocators, setPageLocators, idx)}
+          />
+        </div>
+
+        <ConfigPanel
+          aiProvider={aiProvider}
+          setAiProvider={setAiProvider}
+          masking={masking}
+          setMasking={setMasking}
+        />
+
+        <div className="actions">
+          <button className="primary big" onClick={runPipeline} disabled={loading || !checklist}>
+            {loading ? "Processing Pipeline..." : "🚀 Run Full E2E Pipeline"}
+          </button>
+        </div>
+
+        {error && (
+          <div className="card error">
+            <h3>Error</h3>
+            <p>{error}</p>
+          </div>
+        )}
+
+        {result && (
+          <div className="card result-container">
+            <h3>Pipeline Results</h3>
+            <div className="result-tabs">
+              <pre>{JSON.stringify(result, null, 2)}</pre>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   )
 }

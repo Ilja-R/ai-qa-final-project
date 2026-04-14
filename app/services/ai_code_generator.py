@@ -1,4 +1,4 @@
-from services.test_generator.ai_generator import PlaywrightAIGenerator
+from app.core.test_generator.ai_generator import PlaywrightAIGenerator
 from shared.utils.logger import app_logger
 
 class AICodeGenerator:

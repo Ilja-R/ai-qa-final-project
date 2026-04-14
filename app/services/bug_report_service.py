@@ -1,4 +1,4 @@
-from services.bug_reporter.reporter import BugReporter
+from app.core.bug_reporter.reporter import BugReporter
 from shared.utils.logger import app_logger
 
 class BugReportService:
